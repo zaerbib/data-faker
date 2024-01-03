@@ -16,7 +16,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import java.util.concurrent.Executor;
 import java.util.concurrent.ThreadPoolExecutor;
 
-@EnableMongock
+//@EnableMongock
 @SpringBootApplication
 public class DataFakerApplication {
 

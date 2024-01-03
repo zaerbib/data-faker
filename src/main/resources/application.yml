@@ -5,6 +5,7 @@ logging:
    level:
      web: debug
      com.data.faker.app.consumer.DataFlowConsumer: debug
+     com.data.faker.app.consumer.RabbitMqConsumer: debug
 #spring:
 #  data:
 #    mongodb:
@@ -26,3 +27,19 @@ spring:
     user: admin
     password: admin
     broker-url: tcp://localhost:61616
+    pool:
+      enabled: true
+      max-connections: 50
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+rabbitmq:
+  queue:
+    name: dataflow_queue
+  exchange:
+    name: dataflow_exchange
+  routing:
+    key: dataflow_routing_key
