@@ -1,0 +1,28 @@
+server:
+  port: 9091
+
+logging:
+   level:
+     web: debug
+     com.data.faker.app.consumer.DataFlowConsumer: debug
+#spring:
+#  data:
+#    mongodb:
+#      host: localhost
+#      port: 27017
+#      database: datafakerdb
+#      repositories:
+#        type: REACTIVE
+
+
+mongock:
+  migration-scan-package:
+    - com.data.faker.app.changelogs
+  transaction-strategy: CHANGE_UNIT
+  lock-acquired-for-millis: 900000
+
+spring:
+  activemq:
+    user: admin
+    password: admin
+    broker-url: tcp://localhost:61616
