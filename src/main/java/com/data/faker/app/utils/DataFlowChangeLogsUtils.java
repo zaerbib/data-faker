@@ -14,6 +14,9 @@ import org.springframework.data.mongodb.core.query.Update;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.Function;
 import java.util.function.UnaryOperator;
 import java.util.stream.Collectors;
@@ -40,6 +43,10 @@ public class DataFlowChangeLogsUtils {
 
     public static void getDataFlowChangeBatchVersion2(MongoTemplate mongoTemplate, UnaryOperator<DataFlow> update) {
         changeUnitsOnListBatchVersion2(mongoTemplate, update);
+    }
+
+    public static void getDataFlowChangeBatchVersion3(MongoTemplate mongoTemplate, UnaryOperator<DataFlow> update) {
+        changeUnitsOnListAsync(mongoTemplate, update);
     }
 
     public static void changeUnitOnListSimpleVersion(MongoTemplate mongoTemplate,
@@ -85,8 +92,32 @@ public class DataFlowChangeLogsUtils {
                             .filter(Objects::nonNull)
                             .collect(Collectors.toList()))
                     .forEach(item -> item.forEach(mongoTemplate::save));
+        }
+    }
+
+    public static void changeUnitsOnListAsync(MongoTemplate mongoTemplate,
+                                              Function<DataFlow, DataFlow> update) {
+        List<DataFlow> dataFlows = mongoTemplate.findAll(DataFlow.class);
+        AtomicInteger success = new AtomicInteger(0);
+        AtomicInteger failed = new AtomicInteger(0);
+        ExecutorService service = Executors.newVirtualThreadPerTaskExecutor();
+
+        if (!dataFlows.isEmpty()) {
+            List<Void> list = dataFlows.stream()
+                    .map(update)
+                    .map(item ->
+                            CompletableFuture
+                                    .runAsync(() -> mongoTemplate.save(item), service).whenComplete((t, ex) -> {
+                                        if(ex != null) {
+                                            failed.incrementAndGet();
+                                        }
+                                        success.incrementAndGet();
+                                    }).join())
+                    .toList();
 
 
+            log.info("Failed : " + failed.get());
+            log.info("Success : " + success.get());
         }
     }
 }

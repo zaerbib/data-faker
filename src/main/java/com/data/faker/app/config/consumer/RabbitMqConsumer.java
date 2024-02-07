@@ -1,4 +1,4 @@
-package com.data.faker.app.consumer;
+package com.data.faker.app.config.consumer;
 
 import com.data.faker.app.document.DataFlow;
 import lombok.RequiredArgsConstructor;

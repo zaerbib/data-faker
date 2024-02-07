@@ -15,11 +15,9 @@ public class MongoDbConfig extends AbstractMongoClientConfiguration {
 
     @Override
     public MongoClient mongoClient() {
-        ConnectionString connectionString = new ConnectionString("mongodb://localhost:27017/datafakerdb");
+        ConnectionString connectionString = new ConnectionString("mongodb+srv://zaerbib:admin@tuto-cluster-1.vlw5dws.mongodb.net/datafaker?retryWrites=true&w=majority");
         MongoClientSettings mongoClientSettings = MongoClientSettings.builder()
                 .applyConnectionString(connectionString)
-                .retryWrites(false)
-                .retryReads(false)
                 .build();
         return MongoClients.create(mongoClientSettings);
     }

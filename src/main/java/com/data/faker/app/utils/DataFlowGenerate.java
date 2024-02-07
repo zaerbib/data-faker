@@ -12,7 +12,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class DataFlowGenerate {
-    private static  Faker faker = new Faker();
+    private static final Faker faker = new Faker();
 
     public static DataFlow generateOnDataFlow() {
         return DataFlow.builder()

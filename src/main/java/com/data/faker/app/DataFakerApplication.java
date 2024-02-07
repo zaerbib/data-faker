@@ -1,22 +1,20 @@
 package com.data.faker.app;
 
-import com.mongodb.ReadConcern;
-import com.mongodb.ReadPreference;
-import com.mongodb.TransactionOptions;
-import com.mongodb.WriteConcern;
 import io.mongock.runner.springboot.EnableMongock;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.task.TaskExecutionAutoConfiguration;
+import org.springframework.boot.web.embedded.tomcat.TomcatProtocolHandlerCustomizer;
 import org.springframework.context.annotation.Bean;
-import org.springframework.data.mongodb.MongoTransactionManager;
-import org.springframework.data.mongodb.core.MongoTemplate;
+import org.springframework.core.task.AsyncTaskExecutor;
+import org.springframework.core.task.support.TaskExecutorAdapter;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 
 import java.util.concurrent.Executor;
-import java.util.concurrent.ThreadPoolExecutor;
+import java.util.concurrent.Executors;
 
-//@EnableMongock
+@EnableMongock
 @SpringBootApplication
 public class DataFakerApplication {
 
@@ -35,5 +33,17 @@ public class DataFakerApplication {
 		executor.setWaitForTasksToCompleteOnShutdown(true);
 		executor.initialize();
 		return executor;
+	}
+
+	@Bean(TaskExecutionAutoConfiguration.APPLICATION_TASK_EXECUTOR_BEAN_NAME)
+	public AsyncTaskExecutor asyncTaskExecutor() {
+		return new TaskExecutorAdapter(Executors.newVirtualThreadPerTaskExecutor());
+	}
+
+	@Bean
+	public TomcatProtocolHandlerCustomizer<?> protocolHandlerCustomizerVirtualThread() {
+		return protocolHandler -> {
+			protocolHandler.setExecutor(Executors.newVirtualThreadPerTaskExecutor());
+		};
 	}
 }

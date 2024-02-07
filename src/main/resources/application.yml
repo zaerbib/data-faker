@@ -20,7 +20,8 @@ mongock:
   migration-scan-package:
     - com.data.faker.app.changelogs
   transaction-strategy: CHANGE_UNIT
-  lock-acquired-for-millis: 900000
+##  lock-acquired-for-millis: 900000
+
 
 spring:
   activemq:

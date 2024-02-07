@@ -12,7 +12,7 @@ import org.springframework.data.mongodb.core.MongoTemplate;
 import java.util.HashMap;
 import java.util.Map;
 
-import static com.data.faker.app.utils.DataFlowChangeLogsUtils.getDataFlowChangeBatchVersion2;
+import static com.data.faker.app.utils.DataFlowChangeLogsUtils.*;
 
 @Profile("mongock")
 @ChangeUnit(id="add-field-change", order = "001", author = "dev")
@@ -20,7 +20,7 @@ public class AddFieldChange {
 
     @Execution
     public void changeSet(MongoTemplate mongoTemplate) {
-        getDataFlowChangeBatchVersion2(mongoTemplate, this::makeChange2);
+        getDataFlowChangeBatchVersion3(mongoTemplate, this::makeChange2);
     }
 
     @RollbackExecution
