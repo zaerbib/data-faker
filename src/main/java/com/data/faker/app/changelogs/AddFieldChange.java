@@ -2,6 +2,10 @@ package com.data.faker.app.changelogs;
 
 import com.data.faker.app.document.Benef;
 import com.data.faker.app.document.DataFlow;
+import com.data.faker.app.utils.JsonPatchUtils;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import io.mongock.api.annotations.ChangeUnit;
 import io.mongock.api.annotations.Execution;
 import io.mongock.api.annotations.RollbackExecution;
@@ -17,6 +21,8 @@ import static com.data.faker.app.utils.DataFlowChangeLogsUtils.*;
 @Profile("mongock")
 @ChangeUnit(id="add-field-change", order = "001", author = "dev")
 public class AddFieldChange {
+
+    private final static ObjectMapper mapper = new ObjectMapper().registerModule(new JavaTimeModule());
 
     @Execution
     public void changeSet(MongoTemplate mongoTemplate) {
@@ -44,8 +50,18 @@ public class AddFieldChange {
         Double diff = dataFlow.getClose() - dataFlow.getOpen();
         Double invest = dataFlow.getVolume() - (dataFlow.getVolume() * dataFlow.getDividend());
 
-        dataFlow.setBenef(Benef.builder().invest(invest).diff(diff).build());
+        try {
+            String patchOp = """
+                        [
+                         { "op": "replace",
+                           "path": "/benef",
+                           "value": $object }
+                        ]
+                    """.replace("$object", mapper.writeValueAsString(Benef.builder().invest(invest).diff(diff).build()));
+            return JsonPatchUtils.applyJsonPatch(mapper, dataFlow, patchOp);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
 
-        return dataFlow;
     }
 }
